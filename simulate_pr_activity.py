@@ -1,14 +1,10 @@
 import random
 import subprocess
-import requests
 import time
 
-REPO_PATH = r"D:\final year\PTest\first"
-
-SLACK_WEBHOOK = "https://hooks.slack.com/services/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"
+REPO_PATH = "D:/final year/PTest/first"
 
 employees = [f"emp_{i}" for i in range(1,11)]
-
 managers = {
     "manager_1": employees[:5],
     "manager_2": employees[5:]
@@ -23,13 +19,7 @@ titles = [
 ]
 
 def run(cmd):
-    return subprocess.run(cmd, cwd=REPO_PATH, capture_output=True, text=True)
-
-
-def send_slack(message):
-    payload = {"text": message}
-    requests.post(SLACK_WEBHOOK, json=payload)
-
+    subprocess.run(cmd, cwd=REPO_PATH)
 
 for day in range(1,11):
 
@@ -65,39 +55,16 @@ for day in range(1,11):
 
                 run(["git","push","origin",branch])
 
-                # CREATE PR AND CAPTURE URL
-                result = run([
+                subprocess.run([
                     "gh",
                     "pr",
                     "create",
                     "--title",
                     random.choice(titles),
                     "--body",
-                    f"PR by {emp}",
-                    "--json",
-                    "url",
-                    "--jq",
-                    ".url"
-                ])
+                    f"PR by {emp}"
+                ], cwd=REPO_PATH)
 
-                pr_url = result.stdout.strip()
-
-                print("PR:", pr_url)
-
-                # SEND TO SLACK
-                slack_message = f"""
-Daily Update
-
-Employee: {emp}
-Manager: {manager}
-Day: {day}
-
-PR Created:
-{pr_url}
-"""
-
-                send_slack(slack_message)
-
-                time.sleep(2)
+                time.sleep(1)
 
 print("Simulation complete")
